@@ -1,0 +1,8 @@
+pushing to git: # 1. Stage EVERYTHING (including the images)
+git add .
+
+# 2. Commit them
+git commit -m "Updated metrics cards and added dashboard screenshots"
+
+# 3. Push to GitHub
+git push
