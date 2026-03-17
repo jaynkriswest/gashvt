@@ -6,7 +6,8 @@ import Link from 'next/link';
 
 export default function Navbar() {
   const [session, setSession] = useState<any>(null);
-  const [userRole, setUserRole] = useState<string | null>(null); // New state for role
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true); // New loading state
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -17,21 +18,21 @@ export default function Navbar() {
       setSession(session);
 
       if (session?.user) {
-        // Fetch the role from the profiles table
         const { data } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', session.user.id)
           .single();
-        
         setUserRole(data?.role);
       }
+      setLoading(false); // Stop loading after check
     }
 
     getSessionAndRole();
   }, [supabase]);
 
-  if (pathname === '/login' || !session) return null;
+  // Don't show Navbar on login page, or if we are still checking the session
+  if (pathname === '/login' || loading || !session) return null;
 
   return (
     <nav className="flex items-center justify-between px-8 py-4 bg-[#0d1117] border-b border-slate-800 sticky top-0 z-50">
@@ -41,7 +42,7 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <div className="hidden md:flex items-center gap-8">
+      <div className="flex items-center gap-4 md:gap-8 overflow-x-auto">
         <Link href="/dashboard" className="text-[10px] font-black uppercase tracking-widest text-blue-400">
           Fleet Intel
         </Link>
