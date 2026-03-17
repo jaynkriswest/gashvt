@@ -3,59 +3,69 @@ import { useEffect, useState } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { createClient } from '@/utils/supabase/client';
 
-export default function Scanner() {
+// 1. Accept userProfile as a prop to satisfy TypeScript and Vercel build rules
+export default function Scanner({ userProfile }: { userProfile: any }) {
   const [scannedResult, setScannedResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(true);
   
   const supabase = createClient();
 
-useEffect(() => {
-  const scanner = new Html5QrcodeScanner(
-    "reader",
-    { 
-      fps: 10, 
-      qrbox: { width: 250, height: 250 },
-      aspectRatio: 1.0,
-      // Add this to help mobile browsers pick the right camera
-      videoConstraints: {
-        facingMode: { ideal: "environment" } 
-      }
-    },
-    /* verbose= */ false
-  );
+  useEffect(() => {
+    const scanner = new Html5QrcodeScanner(
+      "reader",
+      { 
+        fps: 10, 
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0,
+        videoConstraints: {
+          facingMode: { ideal: "environment" } 
+        }
+      },
+      /* verbose= */ false
+    );
 
-    // 2. Define what happens on a successful scan
     const onScanSuccess = async (decodedText: string) => {
+      // Pause scanning while we look up data
       setIsScanning(false);
       
-      // Look up the scanned ID in Supabase
-      const { data, error } = await supabase
+      // Start building the query
+      let query = supabase
         .from('cylinders')
         .select('*')
-        .eq('Cylinder_ID', decodedText.trim())
-        .single();
+        .eq('Cylinder_ID', decodedText.trim());
+
+      // 2. SECURITY: If the user is not an Admin, they can only scan their own cylinders
+      if (userProfile?.role !== 'Admin' && userProfile?.client_link) {
+        query = query.eq('Customer_Name', userProfile.client_link);
+      }
+
+      const { data, error: dbError } = await query.single();
 
       if (data) {
         setScannedResult(data);
         setError(null);
       } else {
-        setError(`Unit ${decodedText} not found in database.`);
+        // More descriptive error based on role
+        const errorMessage = userProfile?.role !== 'Admin' 
+          ? `Unit ${decodedText} not found or doesn't belong to your fleet.` 
+          : `Unit ${decodedText} not found in database.`;
+        
+        setError(errorMessage);
         setScannedResult(null);
       }
     };
 
     const onScanFailure = (error: any) => {
-      // Logic for failed scans (usually ignored to keep the loop running)
+      // Logic for failed scans (ignored to keep loop running)
     };
 
     scanner.render(onScanSuccess, onScanFailure);
 
-    // 3. Cleanup when component unmounts
     return () => {
       scanner.clear().catch(err => console.error("Scanner cleanup failed", err));
     };
-  }, []);
+  }, [userProfile, supabase]); // dependencies updated
 
   return (
     <div className="max-w-xl mx-auto space-y-6 animate-in fade-in duration-700">
@@ -65,7 +75,6 @@ useEffect(() => {
           <div className={`h-2 w-2 rounded-full animate-pulse ${isScanning ? 'bg-green-500' : 'bg-slate-700'}`} />
         </div>
         
-        {/* Camera Feed Container */}
         <div id="reader" className="overflow-hidden rounded-2xl border border-slate-700 bg-black" />
         
         <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-6 text-center">
@@ -73,7 +82,6 @@ useEffect(() => {
         </p>
       </div>
 
-      {/* Scanned Data Display */}
       {scannedResult && (
         <div className="bg-blue-600/10 border border-blue-500/30 p-6 rounded-2xl shadow-xl animate-in slide-in-from-top-4">
           <div className="flex justify-between items-start">
@@ -95,8 +103,8 @@ useEffect(() => {
               <p className="text-slate-200 text-xs font-semibold">{scannedResult.Status || 'N/A'}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-slate-500 uppercase font-bold text-[9px] tracking-tighter">Assigned Customer</p>
-              <p className="text-slate-200 text-xs font-semibold">{scannedResult.Customer || 'None'}</p>
+              <p className="text-slate-500 uppercase font-bold text-[9px] tracking-tighter">Fleet Link</p>
+              <p className="text-slate-200 text-xs font-semibold">{scannedResult.Customer_Name || 'None'}</p>
             </div>
           </div>
         </div>
@@ -105,6 +113,12 @@ useEffect(() => {
       {error && (
         <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-center">
           <p className="text-red-500 text-[10px] font-black uppercase">{error}</p>
+          <button 
+            onClick={() => { setError(null); setIsScanning(true); }}
+            className="mt-2 text-blue-400 text-[9px] font-bold uppercase underline"
+          >
+            Try Again
+          </button>
         </div>
       )}
     </div>
