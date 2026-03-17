@@ -1,11 +1,33 @@
 'use client'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/utils/supabase/client';
 import FleetIntelView from '@/components/FleetIntelView';
 import Scanner from '@/components/Scanner'; 
-import RecentActivityView from '@/components/RecentActivityView'; // New Import
+import RecentActivityView from '@/components/RecentActivityView';
 
 export default function Dashboard() {
   const [mode, setMode] = useState('view');
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function loadDashboard() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        setProfile(data);
+      }
+      setLoading(false);
+    }
+    loadDashboard();
+  }, []);
+
+  if (loading) return <div className="p-10 text-slate-500 font-mono text-[10px] uppercase">Authenticating...</div>;
 
   return (
     <div className="space-y-8">
@@ -15,31 +37,25 @@ export default function Dashboard() {
           📊 Intel
         </button>
         
-        {/* CHANGED THIS BUTTON */}
-        <button 
-          onClick={() => setMode('recent')} 
-          className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${
-            mode === 'recent' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'
-          }`}
-        >
+        <button onClick={() => setMode('recent')} className={mode === 'recent' ? 'activeStyle' : 'inactiveStyle'}>
           🕒 Recent
         </button>
 
-        <button onClick={() => setMode('scan')} className={mode === 'scan' ? 'activeStyle' : 'inactiveStyle'}>
-          📷 Scan
-        </button>
+        {/* Only show Scan for Testing Centers or Admins */}
+        {(profile?.role === 'testing_center' || profile?.role === 'Admin') && (
+          <button onClick={() => setMode('scan')} className={mode === 'scan' ? 'activeStyle' : 'inactiveStyle'}>
+            📷 Scan
+          </button>
+        )}
       </div>
 
-      {/* Dynamic Content Area */}
       <div className="animate-in fade-in slide-in-from-bottom-2 duration-700">
-        {mode === 'view' && <FleetIntelView />}
-        
-        {/* NEW RECENT ACTIVITY VIEW */}
-        {mode === 'recent' && <RecentActivityView />}
-
+        {/* Pass profile data so the views know how to filter charts */}
+        {mode === 'view' && <FleetIntelView userProfile={profile} />}
+        {mode === 'recent' && <RecentActivityView userProfile={profile} />}
         {mode === 'scan' && (
           <div className="max-w-2xl mx-auto">
-             <Scanner />
+             <Scanner userProfile={profile} />
           </div>
         )}
       </div>

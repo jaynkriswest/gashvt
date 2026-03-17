@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
-export default function FleetIntelView() {
+// Added userProfile to props
+export default function FleetIntelView({ userProfile }: { userProfile: any }) {
   const [cylinders, setCylinders] = useState<any[]>([]);
   const [companies, setCompanies] = useState<string[]>([]);
   const [filterCompany, setFilterCompany] = useState('All Companies');
@@ -14,20 +15,27 @@ export default function FleetIntelView() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [userProfile]); // Re-fetch if profile changes
 
   async function fetchData() {
     setLoading(true);
+    
+    // RLS in Supabase will automatically limit these results 
+    // based on the user's owner_company or role
     const { data } = await supabase.from('cylinders').select('*');
+    
     if (data) {
       setCylinders(data);
+      
+      // If Admin, show all company names in the dropdown. 
+      // If Gas Co/Testing Center, the dropdown is restricted to their own name.
       const unique = Array.from(new Set(data.map(c => c.Customer_Name))).filter(Boolean) as string[];
       setCompanies(unique.sort());
     }
     setLoading(false);
   }
 
-  // 1. CALCULATE PERMANENT STATS (Unfiltered by search/toggle)
+  // 1. STATS - Now reflects the RLS-filtered data
   const totalFleetCount = cylinders.length;
   
   const totalAlertsCount = cylinders.filter(c => {
@@ -38,7 +46,7 @@ export default function FleetIntelView() {
     return new Date(c.Next_Test_Due) <= thirtyDays;
   }).length;
 
-  // 2. FILTER LOGIC FOR THE TABLE
+  // 2. FILTER LOGIC
   const getFilteredData = () => {
     let baseData = cylinders;
     
@@ -64,23 +72,14 @@ export default function FleetIntelView() {
 
   const currentData = getFilteredData();
 
-  const handleExport = () => {
-    const headers = "Cylinder_ID,Customer,Batch,Status,Next_Test\n";
-    const rows = currentData.map(c => `${c.Cylinder_ID},${c.Customer_Name},${c.batch_id},${c.Status},${c.Next_Test_Due}`).join("\n");
-    const blob = new Blob([headers + rows], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${viewScope.toLowerCase()}_export.csv`;
-    a.click();
-  };
-
   return (
     <div className="space-y-6">
-      {/* 1. TOP STATS CARDS - Now Independent */}
+      {/* 1. TOP STATS CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-[#0d1117] p-8 rounded-2xl border border-slate-800 shadow-xl">
-          <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2">Total Fleet Records</p>
+          <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2">
+            {userProfile?.role === 'Admin' ? 'Global Fleet Records' : 'Your Managed Fleet'}
+          </p>
           <h2 className="text-4xl font-mono font-bold text-white">
             {totalFleetCount} <span className="text-xs text-slate-600 font-sans uppercase">Total</span>
           </h2>
@@ -88,7 +87,7 @@ export default function FleetIntelView() {
 
         <div className={`p-8 rounded-2xl border transition-all shadow-xl ${totalAlertsCount > 0 ? 'bg-red-500/5 border-red-500/20' : 'bg-[#0d1117] border-slate-800'}`}>
           <p className={`${totalAlertsCount > 0 ? 'text-red-500' : 'text-slate-500'} text-[10px] font-black uppercase tracking-widest mb-2`}>
-            Total Compliance Alerts
+            Compliance Alerts
           </p>
           <h2 className={`text-4xl font-mono font-bold ${totalAlertsCount > 0 ? 'text-red-500' : 'text-white'}`}>
             {totalAlertsCount} <span className="text-xs font-sans uppercase">Units</span>
@@ -121,29 +120,25 @@ export default function FleetIntelView() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
 
-          <select 
-            className="bg-[#010409] border border-slate-800 text-slate-400 text-[10px] font-bold rounded-xl px-4 py-2.5 outline-none"
-            value={filterCompany}
-            onChange={(e) => setFilterCompany(e.target.value)}
-          >
-            <option>All Companies</option>
-            {companies.map(name => <option key={name} value={name}>{name}</option>)}
-          </select>
+          {/* Hide company filter if not an Admin, as there's only one company to see */}
+          {userProfile?.role === 'Admin' && (
+            <select 
+              className="bg-[#010409] border border-slate-800 text-slate-400 text-[10px] font-bold rounded-xl px-4 py-2.5 outline-none"
+              value={filterCompany}
+              onChange={(e) => setFilterCompany(e.target.value)}
+            >
+              <option>All Companies</option>
+              {companies.map(name => <option key={name} value={name}>{name}</option>)}
+            </select>
+          )}
         </div>
-
-        <button 
-          onClick={handleExport}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-        >
-          💾 Export CSV
-        </button>
       </div>
 
-      {/* 3. SCROLLABLE TABLE */}
+      {/* 3. TABLE AREA */}
       <div className="bg-[#0d1117] border border-slate-800 rounded-2xl flex flex-col h-[500px] overflow-hidden shadow-2xl">
         <div className="p-4 border-b border-slate-800 bg-[#161b22] flex justify-between items-center">
           <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">
-            Viewing {viewScope} — {currentData.length} Results
+            {userProfile?.client_link} — Viewing {viewScope}
           </h3>
         </div>
         
@@ -152,20 +147,24 @@ export default function FleetIntelView() {
             <thead className="sticky top-0 bg-[#0d1117] text-[9px] font-black text-slate-500 uppercase border-b border-slate-800 z-10">
               <tr>
                 <th className="px-8 py-4">Identity</th>
-                <th className="px-8 py-4">Customer</th>
+                <th className="px-8 py-4">Status</th>
                 <th className="px-8 py-4">Batch</th>
-                <th className="px-8 py-4 text-right">Next Test</th>
+                <th className="px-8 py-4 text-right">Next Test Due</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/30">
               {loading ? (
-                <tr><td colSpan={4} className="p-20 text-center text-slate-600 font-bold uppercase text-[10px] animate-pulse">Filtering Fleet...</td></tr>
+                <tr><td colSpan={4} className="p-20 text-center text-slate-600 font-bold uppercase text-[10px]">Loading Secured Data...</td></tr>
               ) : currentData.map((unit) => (
                 <tr key={unit.Cylinder_ID} className="hover:bg-blue-600/5 transition-colors group">
                   <td className="px-8 py-5 font-mono text-blue-400 font-bold group-hover:text-blue-300">{unit.Cylinder_ID}</td>
-                  <td className="px-8 py-5 text-slate-400 text-xs">{unit.Customer_Name}</td>
+                  <td className="px-8 py-5">
+                    <span className="bg-slate-900 border border-slate-800 px-3 py-1 rounded-full text-[9px] font-black uppercase text-slate-400">
+                      {unit.Status || 'Active'}
+                    </span>
+                  </td>
                   <td className="px-8 py-5 text-slate-600 font-mono text-xs">{unit.batch_id || '—'}</td>
-                  <td className={`px-8 py-5 text-right font-mono text-xs ${viewScope === 'Compliance Alerts' || new Date(unit.Next_Test_Due) < new Date() ? 'text-red-500 font-black' : 'text-slate-500'}`}>
+                  <td className={`px-8 py-5 text-right font-mono text-xs ${new Date(unit.Next_Test_Due) < new Date() ? 'text-red-500 font-black' : 'text-slate-500'}`}>
                     {unit.Next_Test_Due}
                   </td>
                 </tr>

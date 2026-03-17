@@ -6,81 +6,65 @@ import Link from 'next/link';
 
 export default function Navbar() {
   const [session, setSession] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string | null>(null); // New state for role
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    // Check current session on mount
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    async function getSessionAndRole() {
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
-    });
 
-    // Listen for auth state changes (login/logout)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+      if (session?.user) {
+        // Fetch the role from the profiles table
+        const { data } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+        
+        setUserRole(data?.role);
+      }
+    }
 
-    return () => subscription.unsubscribe();
+    getSessionAndRole();
   }, [supabase]);
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
-  };
-
-  // 1. Hide if we are on the login page
-  // 2. Hide if there is no active session (user is not logged in)
-  if (pathname === '/login' || !session) {
-    return null;
-  }
+  if (pathname === '/login' || !session) return null;
 
   return (
     <nav className="flex items-center justify-between px-8 py-4 bg-[#0d1117] border-b border-slate-800 sticky top-0 z-50">
-      {/* Branding / Logo */}
       <div className="flex items-center gap-4">
-        <Link href="/dashboard" className="text-blue-500 font-black text-xl tracking-tighter hover:opacity-80 transition-opacity">
+        <Link href="/dashboard" className="text-blue-500 font-black text-xl tracking-tighter">
           GAS LOGISTICS
         </Link>
       </div>
 
-      {/* Navigation Links */}
       <div className="hidden md:flex items-center gap-8">
-        <Link 
-          href="/dashboard" 
-          className={`text-[10px] font-black uppercase tracking-widest transition-colors ${pathname === '/dashboard' ? 'text-blue-400' : 'text-slate-400 hover:text-white'}`}
-        >
+        <Link href="/dashboard" className="text-[10px] font-black uppercase tracking-widest text-blue-400">
           Fleet Intel
         </Link>
-        <Link 
-          href="/ingestion" 
-          className={`text-[10px] font-black uppercase tracking-widest transition-colors ${pathname === '/ingestion' ? 'text-blue-400' : 'text-slate-400 hover:text-white'}`}
-        >
-          Ingestion Hub
-        </Link>
-        <Link 
-          href="/bulk" 
-          className={`text-[10px] font-black uppercase tracking-widest transition-colors ${pathname === '/bulk' ? 'text-blue-400' : 'text-slate-400 hover:text-white'}`}
-        >
-          Bulk Processing
-        </Link>
-        <Link 
-          href="/barcode-scan" 
-          className={`text-[10px] font-black uppercase tracking-widest transition-colors ${pathname === '/barcode-scan' ? 'text-blue-400' : 'text-slate-400 hover:text-white'}`}
-        >
-          Barcode Scan
-        </Link>
+
+        {/* ONLY SHOW THESE IF ROLE IS ADMIN */}
+        {userRole === 'Admin' && (
+          <>
+            <Link href="/ingestion" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white">
+              Ingestion Hub
+            </Link>
+            <Link href="/bulk" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white">
+              Bulk Processing
+            </Link>
+            <Link href="/barcode-scan" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white">
+              Barcode Scan
+            </Link>
+          </>
+        )}
       </div>
 
-      {/* User Actions */}
       <div className="flex items-center gap-4">
-        <span className="text-slate-500 text-[9px] font-mono hidden lg:block">
-          {session.user?.email}
-        </span>
-        <button 
-          onClick={handleSignOut}
-          className="bg-slate-800 hover:bg-red-900/40 text-slate-300 hover:text-red-400 px-3 py-1.5 rounded-md text-[9px] font-black uppercase tracking-wider border border-slate-700 transition-all"
-        >
+        <span className="text-slate-500 text-[9px] font-mono">{session.user?.email}</span>
+        <button onClick={() => supabase.auth.signOut().then(() => router.push('/login'))} className="...">
           Sign Out
         </button>
       </div>
