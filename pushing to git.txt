@@ -6,3 +6,17 @@ git commit -m "Updated metrics cards and added dashboard screenshots"
 
 # 3. Push to GitHub
 git push
+
+
+
+------------------------------------------------------------------------
+git add .
+git commit -m "Updated BulkProcessingView 4"
+git push origin main
+
+
+-------------------------------------------------------------------------
+git pull origin main
+git add .
+git commit -m "Merging remote changes and adding Search/Filter functionality"
+git push origin main
