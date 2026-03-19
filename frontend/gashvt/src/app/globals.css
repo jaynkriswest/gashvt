@@ -1,32 +1,29 @@
 @import "tailwindcss";
 
-@theme {
-  /* This connects your CSS variables to the Tailwind classes you used in your code */
-  --color-brand-dark: var(--brand-dark);
-  --color-brand-panel: var(--brand-panel);
-  --color-brand-border: var(--brand-border);
-  --color-text-main: var(--text-main);
-}
-
+/* 1. Define your base variables first */
 :root {
-  /* LIGHT MODE (When .dark is NOT present) */
   --brand-dark: #ffffff;      /* Pure white page background */
   --brand-panel: #f6f8fa;     /* Light gray card/table background */
   --brand-border: #d0d7de;    /* Subtle light border */
   --text-main: #1f2328;       /* Dark text for visibility */
-  
-  background-color: var(--brand-dark);
-  color: var(--text-main);
 }
 
 .dark {
-  /* DARK MODE (Your current dark colors) */
   --brand-dark: #010409;
   --brand-panel: #0d1117;
   --brand-border: #30363d;
   --text-main: #ffffff;
 }
 
+/* 2. Map them to Tailwind colors in the @theme block */
+@theme {
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-panel: var(--brand-panel);
+  --color-brand-border: var(--brand-border);
+  --color-text-main: var(--text-main);
+}
+
+/* 3. Apply base styles */
 body {
   background-color: var(--brand-dark);
   color: var(--text-main);
