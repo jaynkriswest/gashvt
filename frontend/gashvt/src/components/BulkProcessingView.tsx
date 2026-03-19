@@ -53,7 +53,7 @@ export default function BulkProcessingView({ userProfile }: { userProfile?: any 
 
   return (
     <div className="p-4 md:p-8 space-y-6 max-w-7xl mx-auto">
-      {/* Toolbar - Now uses brand-panel */}
+      {/* Search Bar - Fixed hardcoded bg-slate-950 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-brand-panel p-4 rounded-2xl border border-brand-border shadow-xl transition-colors">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
@@ -86,10 +86,10 @@ export default function BulkProcessingView({ userProfile }: { userProfile?: any 
         </div>
       </div>
 
-      {/* Batch Cards */}
+      {/* Batch Cards - Fixed hardcoded bg-[#0d1117]/40 */}
       {Object.entries(filteredBatches).map(([batchId, units]: [string, any]) => (
         <div key={batchId} className="bg-brand-panel rounded-3xl border border-brand-border overflow-hidden shadow-sm transition-colors">
-          <div className="p-5 border-b border-brand-border flex items-center justify-between bg-brand-dark/20">
+          <div className="p-5 border-b border-brand-border flex items-center justify-between bg-brand-dark/20 transition-colors">
             <div>
               <h2 className="text-blue-500 font-black text-xs uppercase tracking-widest flex items-center gap-2">
                 <Package size={14} /> {batchId}
@@ -104,14 +104,13 @@ export default function BulkProcessingView({ userProfile }: { userProfile?: any 
             </button>
           </div>
 
-          <div className="divide-y divide-brand-border max-h-96 overflow-y-auto custom-scrollbar">
+          <div className="divide-y divide-brand-border max-h-96 overflow-y-auto custom-scrollbar transition-colors">
             {units.map((unit: any) => (
-              <div key={unit.Cylinder_ID} className="px-6 py-3 flex items-center justify-between hover:bg-blue-500/5 transition-colors">
+              <div key={unit.Cylinder_ID} className="px-6 py-3 flex items-center justify-between hover:bg-blue-600/5 transition-colors">
                 <span className="text-text-main font-mono text-[11px] font-bold">{unit.Cylinder_ID}</span>
                 <div className="flex items-center gap-4">
                   <span className={`text-[9px] font-black px-2 py-1 rounded border ${
-                    unit.Status === 'FULL' ? 'border-emerald-500/30 text-emerald-500' : 
-                    unit.Status === 'DAMAGED' ? 'border-red-500/30 text-red-500' : 'border-brand-border text-slate-500'
+                    unit.Status === 'FULL' ? 'border-emerald-500/30 text-emerald-500' : 'border-brand-border text-slate-500'
                   }`}>
                     {unit.Status}
                   </span>
