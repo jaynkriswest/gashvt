@@ -2,15 +2,13 @@
 
 /* 1. DEFINE RAW VARIABLES FIRST */
 :root {
-  --brand-dark: #ffffff;      /* Page background */
-  --brand-panel: #f6f8fa;     /* Card/Table background */
-  --brand-border: #d0d7de;    /* Borders */
-  --text-main: #1f2328;       /* Primary text color */
-  
-  background-color: var(--brand-dark);
-  color: var(--text-main);
+  --brand-dark: #ffffff;      /* Pure white background */
+  --brand-panel: #f8fafc;     /* Light gray for cards/tables */
+  --brand-border: #e2e8f0;    /* Subtle light border */
+  --text-main: #0f172a;       /* Dark slate text */
 }
 
+/* Ensure the .dark class is explicitly defined for the toggle */
 .dark {
   --brand-dark: #010409;
   --brand-panel: #0d1117;
@@ -18,7 +16,7 @@
   --text-main: #ffffff;
 }
 
-/* 2. MAP TO TAILWIND THEME SECOND (Explicit Mapping) */
+/* 2. MAP TO TAILWIND THEME SECOND */
 @theme {
   --color-brand-dark: var(--brand-dark);
   --color-brand-panel: var(--brand-panel);
@@ -33,9 +31,23 @@ body {
   @apply antialiased transition-colors duration-200;
 }
 
-/* 4. SCANNER LIBRARY OVERRIDES (MUST BE AT THE VERY END) */
+/* 4. SCANNER LIBRARY OVERRIDES (CRITICAL FIXES) */
 
-/* Fixes buttons (Request Camera Permissions) */
+/* Targets the 'Or drop an image to scan' text and labels */
+#reader label, 
+#reader span, 
+#reader div {
+  color: var(--text-main) !important;
+}
+
+/* Specifically targets the drag-and-drop text inside the scanner */
+#reader__dashboard_section_csr span {
+  color: var(--text-main) !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+/* Fixes the 'Request Camera Permissions' and 'Stop Scanning' buttons */
 #reader button {
   background-color: var(--brand-panel) !important;
   color: var(--text-main) !important;
@@ -45,44 +57,10 @@ body {
   text-transform: uppercase !important;
   font-size: 11px !important;
   font-weight: 800 !important;
-  letter-spacing: 0.05em !important;
   cursor: pointer !important;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
-  transition: all 0.2s ease !important;
 }
 
 #reader button:hover {
   background-color: #3b82f6 !important;
   color: white !important;
-  border-color: #3b82f6 !important;
-  transform: translateY(-1px) !important;
-}
-
-/* Fixes "Scan an Image File" link and label */
-#reader a, #reader label {
-  color: #3b82f6 !important;
-  font-size: 11px !important;
-  text-decoration: none !important;
-  font-weight: 700 !important;
-  display: inline-block !important;
-  margin-top: 12px !important;
-  cursor: pointer !important;
-}
-
-#reader a:hover, #reader label:hover {
-  text-decoration: underline !important;
-}
-
-/* Fixes internal library spans and status text */
-#reader span, #reader__status_span {
-  color: var(--text-main) !important;
-  opacity: 0.8 !important;
-  font-size: 10px !important;
-  font-weight: bold !important;
-}
-
-/* Specific fix for the scanner dashboard container to prevent dark backgrounds leaking */
-#reader__dashboard_section_csr {
-  background-color: transparent !important;
-  color: var(--text-main) !important;
 }
