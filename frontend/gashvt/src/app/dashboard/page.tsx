@@ -37,12 +37,14 @@ export default function Dashboard() {
   if (loading) return <div className="p-10 text-slate-500 font-mono text-[10px] uppercase">Authenticating...</div>;
 
   return (
-    <div className="space-y-8">
-      {/* Sub-Navigation */}
-      <div className="flex flex-wrap gap-2 bg-[#0d1117] p-1 rounded-xl border border-slate-800 w-fit">
-        <button onClick={() => setMode('view')} className={getBtnStyle('view')}>
-          📊 Intel
-        </button>
+  <div className="space-y-8">
+    {/* Sub-Navigation */}
+    {/* 1. Changed bg-[#0d1117] to bg-brand-panel */}
+    {/* 2. Changed border-slate-800 to border-brand-border */}
+    <div className="flex flex-wrap gap-2 bg-brand-panel p-1 rounded-xl border border-brand-border w-fit transition-colors">
+      <button onClick={() => setMode('view')} className={getBtnStyle('view')}>
+        📊 Intel
+      </button>
         
         <button onClick={() => setMode('recent')} className={getBtnStyle('recent')}>
           🕒 Recent
