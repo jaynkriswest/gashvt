@@ -1,11 +1,20 @@
 @import "tailwindcss";
 
-/* 1. Define your base variables first */
+@theme {
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-panel: var(--brand-panel);
+  --color-brand-border: var(--brand-border);
+  --color-text-main: var(--text-main);
+}
+
 :root {
-  --brand-dark: #ffffff;      /* Pure white page background */
-  --brand-panel: #f6f8fa;     /* Light gray card/table background */
-  --brand-border: #d0d7de;    /* Subtle light border */
-  --text-main: #1f2328;       /* Dark text for visibility */
+  --brand-dark: #ffffff;
+  --brand-panel: #f6f8fa;
+  --brand-border: #d0d7de;
+  --text-main: #1f2328;
+  
+  background-color: var(--brand-dark);
+  color: var(--text-main);
 }
 
 .dark {
@@ -15,17 +24,56 @@
   --text-main: #ffffff;
 }
 
-/* 2. Map them to Tailwind colors in the @theme block */
-@theme {
-  --color-brand-dark: var(--brand-dark);
-  --color-brand-panel: var(--brand-panel);
-  --color-brand-border: var(--brand-border);
-  --color-text-main: var(--text-main);
-}
-
-/* 3. Apply base styles */
 body {
   background-color: var(--brand-dark);
   color: var(--text-main);
   @apply antialiased transition-colors duration-200;
+}
+
+/* --- ADD THESE AT THE VERY END --- */
+
+/* 1. Fixes the "Request Camera Permissions" button visibility */
+#reader button {
+  background-color: var(--brand-panel) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--brand-border) !important;
+  padding: 10px 20px !important;
+  border-radius: 12px !important;
+  text-transform: uppercase !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+#reader button:hover {
+  background-color: #3b82f6 !important; /* Blue hover state */
+  color: white !important;
+  border-color: #3b82f6 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 2. Fixes the "Scan an Image File" link visibility */
+#reader a {
+  color: #3b82f6 !important;
+  font-size: 11px !important;
+  text-decoration: none !important;
+  font-weight: 700 !important;
+  display: inline-block !important;
+  margin-top: 12px !important;
+  opacity: 0.8 !important;
+}
+
+#reader a:hover {
+  text-decoration: underline !important;
+  opacity: 1 !important;
+}
+
+/* 3. Fixes the status text inside the scanner */
+#reader__status_span {
+  color: var(--text-main) !important;
+  font-size: 10px !important;
+  font-weight: bold !important;
 }
