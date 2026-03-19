@@ -26,7 +26,7 @@ export default function BulkProcessingView({ userProfile }: { userProfile: any }
 
   const batches = cylinders.reduce((acc: any, curr) => {
     const batchId = curr.batch_id || 'UNBATCHED';
-    if (!acc[batchId]) acc[acc[batchId] = [];
+    if (!acc[batchId]) acc[batchId] = []; // FIXED: Corrected the syntax error here
     acc[batchId].push(curr);
     return acc;
   }, {});
@@ -62,10 +62,10 @@ export default function BulkProcessingView({ userProfile }: { userProfile: any }
   return (
     <div className="space-y-8">
       {Object.keys(batches).map(batchId => (
-        /* FIXED: Use brand-panel and brand-border for theme support */
+        /* FIXED: Replaced hardcoded #0d1117 with brand-panel */
         <div key={batchId} className="bg-brand-panel border border-brand-border rounded-2xl overflow-hidden shadow-xl transition-colors">
           
-          {/* BATCH HEADER - FIXED: Dynamic colors and transparency removal */}
+          {/* BATCH HEADER */}
           <div className="bg-brand-panel p-4 flex justify-between items-center border-b border-brand-border">
             <div>
               <h3 className="text-blue-500 font-black text-xs uppercase tracking-widest">{batchId}</h3>
@@ -82,7 +82,6 @@ export default function BulkProcessingView({ userProfile }: { userProfile: any }
               </button>
               <button 
                 onClick={() => handleBatchUpdate(batchId, 'EMPTY')}
-                /* FIXED: Removed slate-800 for brand colors */
                 className="bg-brand-dark border border-brand-border text-slate-500 text-[9px] px-3 py-1 rounded hover:bg-brand-border transition-all"
               >
                 RESET TO EMPTY
@@ -90,7 +89,7 @@ export default function BulkProcessingView({ userProfile }: { userProfile: any }
             </div>
           </div>
 
-          {/* INDIVIDUAL UNIT LIST - FIXED: Scrollbar and text colors */}
+          {/* INDIVIDUAL UNIT LIST */}
           <div className="max-h-48 overflow-y-auto divide-y divide-brand-border">
             {batches[batchId].map((unit: any) => (
               /* FIXED: Removed text-white and hover:bg-slate-800 */
@@ -100,7 +99,6 @@ export default function BulkProcessingView({ userProfile }: { userProfile: any }
                 <select 
                   value={unit.Status}
                   onChange={(e) => handleSingleUpdate(unit.Cylinder_ID, e.target.value)}
-                  /* FIXED: Changed text-slate-400 to text-slate-500 */
                   className="bg-transparent text-slate-500 text-[10px] uppercase font-bold outline-none cursor-pointer"
                 >
                   <option value="EMPTY">EMPTY</option>

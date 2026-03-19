@@ -1,14 +1,11 @@
 @import "tailwindcss";
 
-/* 1. DEFINE VARIABLES FIRST */
+/* 1. DEFINE VARIABLES */
 :root {
-  --brand-dark: #ffffff;      /* Page background */
-  --brand-panel: #f8fafc;     /* Card/Table background */
-  --brand-border: #e2e8f0;    /* Subtle border */
-  --text-main: #0f172a;       /* Dark text */
-  
-  background-color: var(--brand-dark);
-  color: var(--text-main);
+  --brand-dark: #ffffff;
+  --brand-panel: #f8fafc;
+  --brand-border: #e2e8f0;
+  --text-main: #0f172a;
 }
 
 .dark {
@@ -18,7 +15,7 @@
   --text-main: #ffffff;
 }
 
-/* 2. MAP TO TAILWIND THEME SECOND */
+/* 2. TAILWIND v4 MAPPING */
 @theme {
   --color-brand-dark: var(--brand-dark);
   --color-brand-panel: var(--brand-panel);
@@ -33,19 +30,25 @@ body {
   @apply antialiased transition-colors duration-200;
 }
 
-/* 4. SCANNER & TABLE OVERRIDES */
+/* 4. SCANNER LIBRARY OVERRIDES */
 
-/* Fixes "Or drop an image to scan" and all internal library text */
-#reader label, 
-#reader span, 
-#reader a,
-#reader div,
-#reader__dashboard_section_csr span {
+/* Fixes "Scan an Image File" and "Or drop an image to scan" */
+#reader__dashboard_section_csr,
+#reader__dashboard_section_csr span,
+#reader__dashboard_section_csr a,
+#reader__dashboard_section_csr label,
+#reader__status_span {
   color: var(--text-main) !important;
   opacity: 1 !important;
+  text-decoration: none !important;
 }
 
-/* Fixes Scanner Buttons */
+#reader__dashboard_section_csr a:hover {
+  color: #3b82f6 !important;
+  text-decoration: underline !important;
+}
+
+/* Fixes scanner buttons */
 #reader button {
   background-color: var(--brand-panel) !important;
   color: var(--text-main) !important;
@@ -53,15 +56,9 @@ body {
   padding: 10px 20px !important;
   border-radius: 12px !important;
   font-weight: 800 !important;
-  cursor: pointer !important;
 }
 
 #reader button:hover {
   background-color: #3b82f6 !important;
   color: white !important;
-}
-
-/* FORCE Tables to be light in light mode */
-.bg-brand-panel {
-  background-color: var(--brand-panel) !important;
 }
