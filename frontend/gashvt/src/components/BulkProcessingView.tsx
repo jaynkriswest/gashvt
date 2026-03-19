@@ -89,7 +89,7 @@ export default function BulkProcessingView({ userProfile }: { userProfile?: any 
       {/* Batch Cards - Fixed hardcoded bg-[#0d1117]/40 */}
       {Object.entries(filteredBatches).map(([batchId, units]: [string, any]) => (
         <div key={batchId} className="bg-brand-panel rounded-3xl border border-brand-border overflow-hidden shadow-sm transition-colors">
-          <div className="p-5 border-b border-brand-border flex items-center justify-between bg-brand-dark/20 transition-colors">
+          <div className="p-5 border-b border-brand-border flex items-center justify-between bg-brand-panel/50 backdrop-blur-sm transition-colors">
             <div>
               <h2 className="text-blue-500 font-black text-xs uppercase tracking-widest flex items-center gap-2">
                 <Package size={14} /> {batchId}
@@ -106,7 +106,7 @@ export default function BulkProcessingView({ userProfile }: { userProfile?: any 
 
           <div className="divide-y divide-brand-border max-h-96 overflow-y-auto custom-scrollbar transition-colors">
             {units.map((unit: any) => (
-              <div key={unit.Cylinder_ID} className="px-6 py-3 flex items-center justify-between hover:bg-blue-600/5 transition-colors">
+              <div key={unit.Cylinder_ID} className="px-6 py-3 flex items-center justify-between hover:bg-brand-dark/10 transition-colors">
                 <span className="text-text-main font-mono text-[11px] font-bold">{unit.Cylinder_ID}</span>
                 <div className="flex items-center gap-4">
                   <span className={`text-[9px] font-black px-2 py-1 rounded border ${

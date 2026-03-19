@@ -1,41 +1,34 @@
 @import "tailwindcss";
 
 @theme {
-  /* Dynamic mapping */
-  --color-brand-dark: var(--bg-main);
-  --color-brand-panel: var(--bg-panel);
-  --color-brand-border: var(--border-color);
+  /* This maps the CSS variables to Tailwind classes like bg-brand-panel */
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-panel: var(--brand-panel);
+  --color-brand-border: var(--brand-border);
   --color-text-main: var(--text-main);
 }
 
 :root {
-  /* LIGHT MODE (Default) */
-  --bg-main: #ffffff;
-  --bg-panel: #f6f8fa;
-  --border-color: #d0d7de;
-  --text-main: #1f2328;
+  /* LIGHT MODE (Default) - Standard GitHub/Vercel Light Palette */
+  --brand-dark: #ffffff;      /* Page Background */
+  --brand-panel: #f6f8fa;     /* Card/Table Background */
+  --brand-border: #d0d7de;    /* Borders */
+  --text-main: #1f2328;       /* Primary Text */
   
-  background-color: var(--bg-main);
+  background-color: var(--brand-dark);
   color: var(--text-main);
 }
 
-/* This class is toggled by the Theme Switcher or System Settings */
 .dark {
-  /* YOUR CURRENT DARK COLORS */
-  --bg-main: #010409;
-  --bg-panel: #0d1117;
-  --border-color: #30363d;
+  /* DARK MODE - Your current preferred dark colors */
+  --brand-dark: #010409;
+  --brand-panel: #0d1117;
+  --brand-border: #30363d;
   --text-main: #ffffff;
 }
 
 body {
-  background-color: var(--bg-main);
+  background-color: var(--brand-dark);
   color: var(--text-main);
   @apply antialiased transition-colors duration-200;
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
-}
-
-html {
-  background: var(--bg-main);
 }
