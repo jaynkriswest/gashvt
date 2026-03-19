@@ -4,16 +4,16 @@ import * as React from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
-export default function ThemeToggle() {
+// Change 'export default function ThemeToggle' to 'export function ModeToggle'
+export function ModeToggle() {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
-  // Avoid hydration mismatch by waiting for mount
   React.useEffect(() => {
     setMounted(true)
   }, [])
 
-  if (!mounted) return <div className="w-9 h-9" /> // Placeholder to prevent layout shift
+  if (!mounted) return <div className="w-9 h-9" />
 
   return (
     <button
@@ -23,8 +23,6 @@ export default function ThemeToggle() {
     >
       <Sun className="h-4 w-4 text-amber-500 transition-all scale-100 rotate-0 dark:scale-0 dark:-rotate-90" />
       <Moon className="absolute h-4 w-4 text-blue-400 transition-all scale-0 rotate-90 dark:scale-100 dark:rotate-0" />
-      
-      {/* Subtle glow effect on hover */}
       <div className="absolute inset-0 rounded-xl bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
     </button>
   )
