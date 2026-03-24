@@ -20,22 +20,23 @@ export default function LoginPage() {
     
     let targetEmail = identifier
 
-    // If identifier is a username instead of an email, look up the email
+    // Step 1: Handle Username to Email conversion
     if (!identifier.includes('@')) {
       const { data: profile, error: pError } = await supabase
         .from('profiles')
         .select('email')
-        .eq('username', identifier)
+        .ilike('username', identifier) // Changed to .ilike for case-insensitivity
         .single()
 
       if (pError || !profile) {
-        alert("Username not found.")
+        alert("Username not found. Please check your credentials or register.")
         setLoading(false)
         return
       }
       targetEmail = profile.email
     }
 
+    // Step 2: Authenticate with Supabase
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email: targetEmail, 
@@ -46,9 +47,9 @@ export default function LoginPage() {
         alert(error.message)
         setLoading(false)
       } else if (data?.user) {
-        // SUCCESS: Use window.location.href for a hard redirect.
-        // This ensures cookies/sessions are fully synced with the server 
-        // before the dashboard attempts to load.
+        // Step 3: Reliable Redirect
+        // Using window.location.href ensures cookies are set correctly 
+        // before the home page middleware runs.
         window.location.href = '/'
       }
     } catch (err) {
@@ -59,7 +60,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-brand-dark flex flex-col items-center justify-center p-6 transition-colors duration-200">
-      {/* Floating Theme Toggle */}
+      {/* Theme Control */}
       <div className="absolute top-6 right-6">
         <ThemeToggle />
       </div>
@@ -86,6 +87,7 @@ export default function LoginPage() {
               type="text" 
               placeholder="Enter credentials" 
               className="w-full p-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-text-main focus:border-blue-500 outline-none transition-all placeholder:text-slate-600"
+              value={identifier}
               onChange={(e) => setIdentifier(e.target.value)} 
               required 
             />
@@ -99,6 +101,7 @@ export default function LoginPage() {
               type={showPassword ? "text" : "password"} 
               placeholder="••••••••" 
               className="w-full p-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-text-main focus:border-blue-500 outline-none transition-all pr-12 placeholder:text-slate-600"
+              value={password}
               onChange={(e) => setPassword(e.target.value)} 
               required
             />
@@ -130,7 +133,6 @@ export default function LoginPage() {
         </div>
       </div>
       
-      {/* Footer Info */}
       <p className="mt-8 text-slate-600 text-[9px] font-bold uppercase tracking-[0.2em]">
         Secure Terminal Access // 2026 Edition
       </p>
