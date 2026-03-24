@@ -39,7 +39,7 @@ export default function BillingPage() {
             <span className="text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-1 rounded">ACTIVE</span>
           </div>
           <p className="text-slate-500 text-[10px] font-bold uppercase">Current Balance</p>
-          <h2 className="text-3xl font-black text-text-main">$1,240.00</h2>
+          <h2 className="text-3xl font-black text-text-main">$00.00</h2>
         </div>
 
         {/* Status Card */}
@@ -48,7 +48,7 @@ export default function BillingPage() {
             <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500"><AlertCircle size={20} /></div>
           </div>
           <p className="text-slate-500 text-[10px] font-bold uppercase">Next Invoice</p>
-          <h2 className="text-3xl font-black text-text-main">April 01</h2>
+          <h2 className="text-3xl font-black text-text-main">December 31, 2026</h2>
         </div>
       </div>
 
