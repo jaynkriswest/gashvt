@@ -1,0 +1,11 @@
+batch_id,company,truck_number,driver_name,arrival_date,delivery_notes,owner_company
+BATCH001,HP Gas,,,,,HP Gas
+BATCH002,Bharat Gas,,,,,Bharat Gas
+BATCH003,Indane,,,,,Indane
+BATCH004,Indane,,,,,Indane
+BATCH005,Industrial Solutions,,,,,Industrial Solutions
+BATCH006,HP Gas,,,,,HP Gas
+BATCH007,HP Gas,,,,,HP Gas
+BATCH008,Indane,,,,,Indane
+BATCH009,Industrial Solutions,,,,,Industrial Solutions
+BATCH010,Industrial Solutions,,,,,Industrial Solutions
