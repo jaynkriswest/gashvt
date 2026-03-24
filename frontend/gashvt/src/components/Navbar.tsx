@@ -5,12 +5,11 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Home, 
+  Database, 
   Layers, 
   LogOut, 
   CreditCard, 
-  Zap, 
-  ScanLine, 
-  Database 
+  ScanLine 
 } from 'lucide-react';
 import { ThemeToggle } from "@/components/ThemeToggle"
 
@@ -58,12 +57,11 @@ export default function Navbar() {
               <NavLink href="/" label="Intel" icon={<Home size={14} />} active={pathname === '/'} />
               <NavLink href="/billing" label="Financial" icon={<CreditCard size={14} />} active={pathname === '/billing'} />
               
-              {/* Admin-only or elevated tabs */}
+              {/* Corrected folder mappings */}
               {isAdmin && (
                 <>
-                  <NavLink href="/scan" label="Scanner" icon={<ScanLine size={14} />} active={pathname === '/scan'} />
-                  <NavLink href="/inventory" label="Inventory" icon={<Database size={14} />} active={pathname === '/inventory'} />
-                  <NavLink href="/bulk" label="Bulk" icon={<Layers size={14} />} active={pathname === '/bulk'} />
+                  <NavLink href="/ingestion" label="Scanner" icon={<ScanLine size={14} />} active={pathname === '/ingestion'} />
+                  <NavLink href="/bulk" label="Inventory" icon={<Database size={14} />} active={pathname === '/bulk'} />
                 </>
               )}
             </div>

@@ -45,13 +45,11 @@ export default function BillingPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          {/* Balance Card */}
           <div className="bg-white border border-slate-200 p-8 rounded-2xl shadow-sm">
             <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Available Balance</p>
             <h2 className="text-5xl font-black text-blue-600 tracking-tighter">${profile?.balance?.toFixed(2) || "0.00"}</h2>
           </div>
 
-          {/* Transactions */}
           <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
             <div className="p-4 border-b border-slate-100 bg-slate-50 font-black text-[10px] uppercase flex items-center gap-2"><History size={14} /> Transaction History</div>
             <table className="w-full text-left">
@@ -75,16 +73,16 @@ export default function BillingPage() {
           </div>
         </div>
 
-        {/* Calculator */}
         <div className="bg-white border border-blue-100 p-6 rounded-2xl h-fit sticky top-24 shadow-sm">
           <h3 className="text-[10px] font-black uppercase text-blue-600 mb-6 flex items-center gap-2"><Zap size={14} /> Settlement Calculator</h3>
           <select 
             className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs font-bold text-slate-900 outline-none focus:border-blue-500 mb-6 cursor-pointer"
             onChange={(e) => {
-              const service = services.find(s => s.id === e.target.value);
+              const serviceId = e.target.value;
+              const service = services.find(s => String(s.id) === String(serviceId));
               setSelectedService(service);
             }}
-            defaultValue=""
+            value={selectedService?.id || ""}
           >
             <option value="" disabled>Select Service Type...</option>
             {services.map(s => <option key={s.id} value={s.id} className="text-slate-900 bg-white">{s.service_name}</option>)}
