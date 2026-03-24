@@ -5,11 +5,11 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Home, 
-  Database, 
-  Layers, 
-  LogOut, 
   CreditCard, 
-  ScanLine 
+  ScanLine, 
+  Layers, 
+  Database,
+  LogOut 
 } from 'lucide-react';
 import { ThemeToggle } from "@/components/ThemeToggle"
 
@@ -44,7 +44,7 @@ export default function Navbar() {
 
   if (pathname === '/login' || pathname === '/register') return null;
 
-  // Normalized role check
+  // Admin check (case-insensitive)
   const isAdmin = userRole?.toLowerCase() === 'admin';
 
   return (
@@ -53,20 +53,22 @@ export default function Navbar() {
         <div className="flex items-center gap-8">
           <Link href="/" className="font-black italic text-blue-600 tracking-tighter uppercase text-lg">GASHVT V1</Link>
           {user && (
-            <div className="flex items-center gap-6">
-              <NavLink href="/" label="Intel" icon={<Home size={14} />} active={pathname === '/'} />
+            <div className="flex items-center gap-5">
+              <NavLink href="/" label="Fleet Intel" icon={<Home size={14} />} active={pathname === '/'} />
               <NavLink href="/billing" label="Financial" icon={<CreditCard size={14} />} active={pathname === '/billing'} />
               
-              {/* Corrected folder mappings */}
+              {/* These tabs show for Admin roles */}
               {isAdmin && (
                 <>
-                  <NavLink href="/ingestion" label="Scanner" icon={<ScanLine size={14} />} active={pathname === '/ingestion'} />
-                  <NavLink href="/bulk" label="Inventory" icon={<Database size={14} />} active={pathname === '/bulk'} />
+                  <NavLink href="/ingestion" label="Ingestion" icon={<ScanLine size={14} />} active={pathname === '/ingestion'} />
+                  <NavLink href="/bulk" label="Bulk Processing" icon={<Layers size={14} />} active={pathname === '/bulk'} />
+                  <NavLink href="/inventory" label="Scanner" icon={<Database size={14} />} active={pathname === '/inventory'} />
                 </>
               )}
             </div>
           )}
         </div>
+        
         <div className="flex items-center gap-4">
           <ThemeToggle />
           {user && (
@@ -88,7 +90,7 @@ export default function Navbar() {
 function NavLink({ href, label, icon, active }: any) {
   return (
     <Link href={href} className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${active ? 'text-blue-600' : 'text-slate-500 hover:text-slate-900'}`}>
-      {icon} {label}
+      {icon} <span className="hidden xl:inline">{label}</span>
     </Link>
   );
 }
