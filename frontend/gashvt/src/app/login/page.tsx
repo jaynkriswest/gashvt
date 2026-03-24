@@ -11,65 +11,64 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
   const supabase = createClient()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    console.log("Starting login process for:", identifier);
-    
+    console.log("DEBUG: Login attempt started for:", identifier)
+
     let targetEmail = identifier
 
-    // Step 1: Handle Username to Email conversion
+    // Step 1: Username to Email Conversion
     if (!identifier.includes('@')) {
-      console.log("Input is a username. Fetching email from profiles...");
+      console.log("DEBUG: Identifier is username, searching profiles...")
       const { data: profile, error: pError } = await supabase
         .from('profiles')
         .select('email')
-        .ilike('username', identifier) // Case-insensitive lookup
+        .ilike('username', identifier) // Matches 'Admin' or 'admin'
         .single()
 
       if (pError || !profile) {
-        console.error("Profile Lookup Error:", pError?.message || "User not found in profiles table");
-        alert("Username not found. Please check your credentials or register.");
+        console.error("DEBUG: Profile lookup failed:", pError?.message)
+        alert("Username not found. Ensure you have run the RLS policy in Supabase.")
         setLoading(false)
         return
       }
       targetEmail = profile.email
-      console.log("Username resolved to email:", targetEmail);
+      console.log("DEBUG: Email found:", targetEmail)
     }
 
-    // Step 2: Authenticate with Supabase
+    // Step 2: Authentication
     try {
-      console.log("Sending authentication request to Supabase...");
+      console.log("DEBUG: Contacting Supabase Auth...")
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email: targetEmail, 
         password 
       })
 
       if (error) {
-        console.error("Supabase Auth Error:", error.message);
+        console.error("DEBUG: Auth error:", error.message)
         alert(error.message)
         setLoading(false)
       } else if (data?.user) {
-        console.log("Authentication successful! User ID:", data.user.id);
+        console.log("DEBUG: Auth successful! User ID:", data.user.id)
         
         // Step 3: Reliable Redirect
-        // window.location.href forces a full reload which is critical 
-        // for syncing auth cookies with the server-side middleware.
-        console.log("Initiating hard redirect to home page...");
-        window.location.href = '/'
+        // A small timeout ensures cookies are written before redirecting
+        setTimeout(() => {
+          console.log("DEBUG: Redirecting to Dashboard...")
+          window.location.replace('/') 
+        }, 500)
       }
     } catch (err) {
-      console.error("Unexpected Application Error:", err)
+      console.error("DEBUG: Unexpected crash:", err)
       setLoading(false)
     }
   }
 
   return (
     <div className="min-h-screen bg-brand-dark flex flex-col items-center justify-center p-6 transition-colors duration-200">
-      {/* Theme Control */}
       <div className="absolute top-6 right-6">
         <ThemeToggle />
       </div>
@@ -89,28 +88,22 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-slate-500 text-[10px] font-bold uppercase ml-1">
-              Username or Email
-            </label>
+            <label className="text-slate-500 text-[10px] font-bold uppercase ml-1">Username or Email</label>
             <input 
               type="text" 
               placeholder="Enter credentials" 
-              className="w-full p-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-text-main focus:border-blue-500 outline-none transition-all placeholder:text-slate-600"
-              value={identifier}
+              className="w-full p-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-text-main focus:border-blue-500 outline-none transition-all"
               onChange={(e) => setIdentifier(e.target.value)} 
               required 
             />
           </div>
 
           <div className="space-y-1 relative">
-            <label className="text-slate-500 text-[10px] font-bold uppercase ml-1">
-              Secure Key
-            </label>
+            <label className="text-slate-500 text-[10px] font-bold uppercase ml-1">Secure Key</label>
             <input 
               type={showPassword ? "text" : "password"} 
               placeholder="••••••••" 
-              className="w-full p-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-text-main focus:border-blue-500 outline-none transition-all pr-12 placeholder:text-slate-600"
-              value={password}
+              className="w-full p-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-text-main focus:border-blue-500 outline-none transition-all pr-12"
               onChange={(e) => setPassword(e.target.value)} 
               required
             />
@@ -133,9 +126,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-8 pt-6 border-t border-brand-border text-center">
-          <p className="text-slate-500 text-[10px] uppercase font-bold tracking-widest mb-3">
-            New Organization?
-          </p>
+          <p className="text-slate-500 text-[10px] uppercase font-bold tracking-widest mb-3">New Organization?</p>
           <Link href="/register" className="text-blue-500 hover:text-blue-400 text-[10px] font-black uppercase underline decoration-2 underline-offset-4">
             Request Registration
           </Link>
