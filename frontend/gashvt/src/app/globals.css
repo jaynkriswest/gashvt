@@ -1,13 +1,14 @@
 @import "tailwindcss";
 
-/* 1. DEFINE VARIABLES */
+/* 1. DEFINE VARIABLES - LIGHT MODE OPTIMIZED */
 :root {
-  --brand-dark: #ffffff;
-  --brand-panel: #f8fafc;
-  --brand-border: #e2e8f0;
-  --text-main: #0f172a;
+  --brand-dark: #f1f5f9;    /* Light Slate Background */
+  --brand-panel: #ffffff;   /* Pure White Cards */
+  --brand-border: #cbd5e1;  /* Defined Borders */
+  --text-main: #0f172a;     /* Deep Navy Text */
 }
 
+/* DARK MODE OVERRIDES */
 .dark {
   --brand-dark: #010409;
   --brand-panel: #0d1117;
@@ -30,54 +31,19 @@ body {
   @apply antialiased transition-colors duration-200;
 }
 
-/* 4. SCANNER LIBRARY OVERRIDES */
+/* FIX: Ensure dropdown options are ALWAYS visible in light mode */
+select option {
+  background-color: white !important;
+  color: #0f172a !important;
+}
 
-/* FIXED: Target the main library container and force background transparency */
+/* 4. SCANNER LIBRARY OVERRIDES */
 #reader {
   background-color: transparent !important;
   border: none !important;
 }
 
-/* FIXED: Hide the default phone/QR icon shown in the prompt's yellow boxes */
-#reader__camera_selection, 
-#reader__camera_permission_button, 
-#reader img[alt="Camera based scan"] {
-  display: none !important;
-}
-
-/* FIXED: Target the inner dashboard section that creates the white box effect */
 #reader__dashboard_section_csr {
   background-color: transparent !important;
   color: var(--text-main) !important;
-}
-
-/* Text overrides for "Scan an Image File" and "Or drop an image to scan" */
-#reader__dashboard_section_csr span,
-#reader__dashboard_section_csr a,
-#reader__status_span,
-#reader label {
-  color: var(--text-main) !important;
-  opacity: 1 !important;
-}
-
-/* Specifically style the "Scan an Image File" link as blue */
-#reader__dashboard_section_csr a {
-  color: #3b82f6 !important;
-  text-decoration: underline !important;
-}
-
-/* Style the scanner buttons to match the application theme */
-#reader button {
-  background-color: #3b82f6 !important;
-  color: white !important;
-  border: none !important;
-  padding: 10px 20px !important;
-  border-radius: 8px !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  font-size: 11px !important;
-}
-
-#reader button:hover {
-  background-color: #2563eb !important;
 }
