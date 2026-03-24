@@ -17,43 +17,52 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    console.log("Starting login process for:", identifier);
     
     let targetEmail = identifier
 
     // Step 1: Handle Username to Email conversion
     if (!identifier.includes('@')) {
+      console.log("Input is a username. Fetching email from profiles...");
       const { data: profile, error: pError } = await supabase
         .from('profiles')
         .select('email')
-        .ilike('username', identifier) // Changed to .ilike for case-insensitivity
+        .ilike('username', identifier) // Case-insensitive lookup
         .single()
 
       if (pError || !profile) {
-        alert("Username not found. Please check your credentials or register.")
+        console.error("Profile Lookup Error:", pError?.message || "User not found in profiles table");
+        alert("Username not found. Please check your credentials or register.");
         setLoading(false)
         return
       }
       targetEmail = profile.email
+      console.log("Username resolved to email:", targetEmail);
     }
 
     // Step 2: Authenticate with Supabase
     try {
+      console.log("Sending authentication request to Supabase...");
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email: targetEmail, 
         password 
       })
 
       if (error) {
+        console.error("Supabase Auth Error:", error.message);
         alert(error.message)
         setLoading(false)
       } else if (data?.user) {
+        console.log("Authentication successful! User ID:", data.user.id);
+        
         // Step 3: Reliable Redirect
-        // Using window.location.href ensures cookies are set correctly 
-        // before the home page middleware runs.
+        // window.location.href forces a full reload which is critical 
+        // for syncing auth cookies with the server-side middleware.
+        console.log("Initiating hard redirect to home page...");
         window.location.href = '/'
       }
     } catch (err) {
-      console.error("Authentication error:", err)
+      console.error("Unexpected Application Error:", err)
       setLoading(false)
     }
   }
