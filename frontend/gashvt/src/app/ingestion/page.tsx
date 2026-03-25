@@ -44,8 +44,8 @@ export default function IngestionPage() {
               <h2 className="font-black uppercase tracking-widest text-[11px]">Current Batch Stats</h2>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <StatCard label="Total Units" value="24" />
-              <StatCard label="Avg Capacity" value="14.2kg" />
+              <StatCard label="Total Units" value="00" />
+              <StatCard label="Avg Capacity" value="0.0kg" />
             </div>
           </div>
         </div>
