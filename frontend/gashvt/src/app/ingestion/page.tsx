@@ -1,11 +1,18 @@
 'use client'
 import { useState } from 'react';
 import Scanner from '@/components/Scanner';
-import { Database, Info, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Database, Info, AlertTriangle, CheckCircle2, ScanLine } from 'lucide-react';
 
 export default function IngestionPage() {
   const [assetInfo, setAssetInfo] = useState<any>(null);
   const [isScanning, setIsScanning] = useState(true);
+
+  // Mock profile data - Replace this with your actual user/auth logic
+  const profile = {
+    id: 'user_123',
+    name: 'Operator Name',
+    role: 'technician'
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -22,6 +29,7 @@ export default function IngestionPage() {
         {/* Left: The Camera View */}
         <div className="bg-white border-2 border-slate-200 rounded-3xl overflow-hidden shadow-sm">
           <Scanner 
+            userProfile={profile} // Pass the required profile here
             onResult={(data) => {
               setAssetInfo(data);
               setIsScanning(false);
