@@ -1,90 +1,84 @@
 'use client'
-import { useState, useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
-import { Html5QrcodeScanner } from 'html5-qrcode';
-import Papa from 'papaparse';
+import { useState } from 'react';
+import Scanner from '@/components/Scanner';
+import { Database, Info, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
-export default function IngestionPage({ userProfile }: { userProfile: any }) {
-  const [activeTab, setActiveTab] = useState<'scan' | 'manual' | 'csv'>('scan');
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState({ msg: '', type: '' });
-  const [formData, setFormData] = useState({ 
-    Cylinder_ID: '', 
-    batch_id: '', 
-    Customer_Name: userProfile?.client_link || '',
-    Status: 'EMPTY' 
-  });
-
-  const supabase = createClient();
-
-  useEffect(() => {
-    if (activeTab === 'scan') {
-      const scanner = new Html5QrcodeScanner("reader", { 
-        fps: 10, 
-        qrbox: { width: 250, height: 150 },
-        videoConstraints: { facingMode: { ideal: "environment" } }
-      }, true);
-
-      scanner.render((text) => {
-        setFormData(prev => ({ ...prev, Cylinder_ID: text }));
-        setActiveTab('manual'); 
-        scanner.clear();
-      }, () => {});
-
-      return () => { scanner.clear().catch(() => {}); };
-    }
-  }, [activeTab]);
+export default function IngestionPage() {
+  const [assetInfo, setAssetInfo] = useState<any>(null);
+  const [isScanning, setIsScanning] = useState(true);
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
-      <header>
-        {/* Fixed hardcoded text-white */}
-        <h1 className="text-xl md:text-2xl font-bold text-text-main mb-2 uppercase tracking-tighter">Ingestion Hub</h1>
-        <p className="text-slate-500 text-[10px] md:text-sm italic uppercase font-mono tracking-widest">Asset Registration</p>
-      </header>
-
-      {/* Tabs - Fixed bg-[#0d1117] */}
-      <div className="flex bg-brand-panel p-1 rounded-xl border border-brand-border w-fit transition-colors">
-        {['scan', 'manual', 'csv'].map(t => (
-          <button 
-            key={t} 
-            onClick={() => setActiveTab(t as any)} 
-            className={`px-6 py-2 text-[10px] font-bold rounded-lg uppercase transition-all ${
-              activeTab === t ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-blue-500'
-            }`}
-          >
-            {t}
-          </button>
-        ))}
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-black uppercase tracking-tighter text-slate-900">
+          Ingestion Terminal
+        </h1>
+        <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full uppercase">
+          Live Scanner Active
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Entry Portal - Fixed bg-[#161b22] */}
-        <div className="bg-brand-panel p-6 rounded-2xl border border-brand-border shadow-xl transition-colors">
-          <h2 className="text-blue-500 font-black text-[10px] uppercase tracking-widest mb-6">Entry Portal</h2>
-          
-          {activeTab === 'scan' && (
-            <div className="space-y-4">
-              {/* Scanner wrapper remains black for camera contrast, but border follows theme */}
-              <div id="reader" className="bg-brand-dark rounded-xl overflow-hidden aspect-square border border-brand-border"></div>
-              <p className="text-[9px] text-center text-slate-500 font-bold uppercase">Scanner Active</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Left: The Camera View */}
+        <div className="bg-white border-2 border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+          <Scanner 
+            onResult={(data) => {
+              setAssetInfo(data);
+              setIsScanning(false);
+            }} 
+          />
+        </div>
+
+        {/* Right: The Detected Info */}
+        <div className="space-y-4">
+          {assetInfo ? (
+            <div className="bg-white border border-blue-200 rounded-3xl p-6 shadow-xl animate-in fade-in zoom-in duration-300">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-blue-600 rounded-2xl text-white">
+                  <Database size={24} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase">Asset Identified</p>
+                  <h2 className="text-xl font-black text-slate-900">{assetInfo.serial_number}</h2>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <InfoItem label="Current Status" value={assetInfo.status} highlight />
+                <InfoItem label="Last Inspection" value={new Date(assetInfo.last_test).toLocaleDateString()} />
+                <InfoItem label="Owner/Fleet" value={assetInfo.owner_name} />
+              </div>
+
+              <button 
+                onClick={() => { setAssetInfo(null); setIsScanning(true); }}
+                className="w-full mt-8 bg-slate-900 text-white p-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-colors"
+              >
+                Scan Next Asset
+              </button>
+            </div>
+          ) : (
+            <div className="h-full border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-12 text-center">
+              <div className="animate-bounce mb-4 text-slate-300">
+                <ScanLine size={48} />
+              </div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                Position barcode within <br/> the viewfinder to retrieve data
+              </p>
             </div>
           )}
-          {/* ... manual and csv forms follow same pattern ... */}
-        </div>
-
-        {/* Protocol Card - Fixed bg-[#161b22] and text-white */}
-        <div className="lg:col-span-2 bg-brand-panel border border-brand-border rounded-2xl p-6 md:p-10 flex flex-col items-center justify-center text-center transition-colors">
-          <div className="max-w-md">
-            <h3 className="text-text-main font-bold mb-4 text-sm uppercase">Compliance Protocol</h3>
-            <ul className="text-slate-500 text-[10px] space-y-3 text-left list-disc list-inside font-mono uppercase">
-              <li>Manual entry requires unique <span className="text-blue-500">Cylinder ID</span>.</li>
-              <li>CSV headers must match database schema.</li>
-              <li>Registration logs are stored for <span className="text-blue-500">Audit Trail</span>.</li>
-            </ul>
-          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function InfoItem({ label, value, highlight = false }: any) {
+  return (
+    <div className="flex justify-between items-center p-3 rounded-xl bg-slate-50 border border-slate-100">
+      <span className="text-[9px] font-black uppercase text-slate-400">{label}</span>
+      <span className={`text-xs font-bold uppercase ${highlight ? 'text-blue-600' : 'text-slate-900'}`}>
+        {value || 'N/A'}
+      </span>
     </div>
   );
 }
